@@ -65,7 +65,7 @@ test('Parse SQL Query with Multiple WHERE Clauses', () => {
         joinCondition: null,
         joinTable: null,
         
-        table: 'sample',
+        table: 'student',
         whereClauses: [{
             "field": "age",
             "operator": "=",
