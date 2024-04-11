@@ -1,24 +1,26 @@
 const readCSV = require('../../src/csvReader');
-const parseQuery = require('../../src/queryParser');
+const {parseQuery} = require('../../src/queryParser');
 const executeSELECTQuery = require('../../src/index');
-
 test('Read CSV File', async () => {
     const data = await readCSV('./student.csv');
     expect(data.length).toBeGreaterThan(0);
     expect(data.length).toBe(4);
     expect(data[0].name).toBe('John');
-    expect(data[0].age).toBe('30'); // Ignore the string type here, we will fix this later
+    expect(data[0].age).toBe('30'); //ignore the string type here, we will fix this later
 });
-
 test('Parse SQL Query', () => {
     const query = 'SELECT id, name FROM student';
     const parsed = parseQuery(query);
     expect(parsed).toEqual({
         fields: ['id', 'name'],
+        table: 'student',
+        whereClauses: [],
         joinCondition: null,
         joinTable: null,
-        table: 'student',
-        whereClauses: []
+        joinType: null,
+        joinType: null,
+        groupByFields : null,
+        hasAggregateWithoutGroupBy: false
     });
 });
 
@@ -31,40 +33,39 @@ test('Execute SQL Query', async () => {
     expect(result[0]).not.toHaveProperty('age');
     expect(result[0]).toEqual({ id: '1', name: 'John' });
 });
-
 test('Parse SQL Query with WHERE Clause', () => {
     const query = 'SELECT id, name FROM student WHERE age = 25';
     const parsed = parseQuery(query);
     expect(parsed).toEqual({
         fields: ['id', 'name'],
-        joinCondition: null,
-        joinTable: null,
         table: 'student',
         whereClauses: [{
-            field: "age",
-            operator: "=",
-            value: "25",
+            "field": "age",
+            "operator": "=",
+            "value": "25",
         }],
+        joinCondition: null,
+        joinTable: null,
+        joinType: null,
+        joinType: null,
+        groupByFields : null,
+        hasAggregateWithoutGroupBy: false
     });
 });
 
 test('Execute SQL Query with WHERE Clause', async () => {
     const query = 'SELECT id, name FROM student WHERE age = 25';
     const result = await executeSELECTQuery(query);
-    expect(result.length).toBe(1);
+    expect(result.length).toBe(1); // Update to reflect the correct number of expected results
     expect(result[0]).toHaveProperty('id');
     expect(result[0]).toHaveProperty('name');
-    expect(result[0].id).toBe('2');
+    expect(result[0].id).toBe('2'); // Update to reflect the correct expected result
 });
-
 test('Parse SQL Query with Multiple WHERE Clauses', () => {
-    const query = 'SELECT id, name FROM student WHERE age = 30 AND name = John'; // Update table name to student
+    const query = 'SELECT id, name FROM student WHERE age = 30 AND name = John';
     const parsed = parseQuery(query);
     expect(parsed).toEqual({
         fields: ['id', 'name'],
-        joinCondition: null,
-        joinTable: null,
-        
         table: 'student',
         whereClauses: [{
             "field": "age",
@@ -74,7 +75,13 @@ test('Parse SQL Query with Multiple WHERE Clauses', () => {
             "field": "name",
             "operator": "=",
             "value": "John",
-        }]
+        }],
+        joinCondition: null,
+        joinTable: null,
+        joinType: null,
+        joinType: null,
+        groupByFields : null,
+        hasAggregateWithoutGroupBy: false
     });
 });
 
